@@ -66,5 +66,6 @@ output "registry_url" {
 
 output "backup_schedule" {
   description = "Velero schedule when backups are enabled (OVH Object Storage)"
+  sensitive   = true
   value       = module.infrastructure_base.backup_schedule
 }
