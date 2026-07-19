@@ -46,6 +46,9 @@ kubeconfig_context = "production"
 # On by default. OpenTofu creates the OVH bucket and enables versioning.
 # Required secrets in terraform.tfvars:
 #   openssl rand -base64 32   # → backup_encryption_password (store offline)
+#
+# External resources (e.g. OVH managed PostgreSQL for GitLab/Keycloak) are NOT
+# backed up by this stack — the person running the infrastructure must handle those.
 backup_enabled             = true
 backup_s3_bucket           = "maze-cluster-backup-production"
 backup_s3_endpoint         = "https://s3.gra.io.cloud.ovh.net"

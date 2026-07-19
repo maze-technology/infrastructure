@@ -40,6 +40,8 @@ cluster_public_ip = "203.0.113.10" # Your VPS public IP (generates /etc/hosts vi
 # ── Cluster backup (Velero + Kopia → local RGW) ─────────────────────────────
 # Encrypted PVC backups + rclone crypt mirror of GitLab/Loki RGW buckets.
 # Generate once and store offline:  openssl rand -base64 32
+# External resources (if any) are NOT covered — the person running the
+# infrastructure is responsible for those backups.
 # backup_enabled              = true
 # backup_encryption_password  = "REPLACE-WITH-openssl-rand-base64-32"
 # backup_schedule_cron        = "0 2 * * *"   # Velero daily 02:00 UTC

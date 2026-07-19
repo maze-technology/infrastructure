@@ -144,7 +144,7 @@ variable "gitlab_postgresql_password" {
 # =============================================================================
 
 variable "backup_enabled" {
-  description = "Install Velero, schedule Kopia backups, and mirror RGW buckets to OVH Object Storage"
+  description = "Install Velero, schedule Kopia backups, and mirror RGW buckets to OVH Object Storage. External resources (e.g. managed PostgreSQL) are not covered — the person running the infrastructure must back those up."
   type        = bool
   default     = true
 }
