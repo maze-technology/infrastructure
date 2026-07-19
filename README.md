@@ -2,19 +2,15 @@
 
 Environment composition roots that pin and apply [`infrastructure-base`](https://github.com/maze-technology/infrastructure-base).
 
-Each env under `iac/envs/*` is a thin OpenTofu root: providers, backends, tfvars, and a single `module "infrastructure_base"` call. Shared platform logic lives in the versioned base module — bump the pin intentionally when adopting a new release.
+Each env under `iac/envs/*` is a thin OpenTofu root: providers, backends, tfvars, and a single `module "infrastructure_base"` call. Shared platform logic lives in the versioned base module. Renovate bumps the literal `ref=` when new tags land on `infrastructure-base`.
 
 ## Pinning infrastructure-base
 
-In each env `main.tf`:
+In each env `main.tf` use a literal git tag (so Renovate can update it):
 
 ```hcl
-locals {
-  infrastructure_base_ref = "v0.1.0" # bump intentionally when adopting a new release
-}
-
 module "infrastructure_base" {
-  source = "git::https://github.com/maze-technology/infrastructure-base.git?ref=${local.infrastructure_base_ref}"
+  source = "git::https://github.com/maze-technology/infrastructure-base.git?ref=v0.1.0"
 
   providers = {
     aws.rgw = aws.rgw
@@ -24,7 +20,7 @@ module "infrastructure_base" {
 }
 ```
 
-After changing `infrastructure_base_ref`, re-run `make init ENV=<env>` so OpenTofu fetches the new module version.
+After a pin change, re-run `make init ENV=<env>` so OpenTofu fetches the new module version.
 
 ## Layout
 
