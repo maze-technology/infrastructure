@@ -46,8 +46,6 @@ provider "helm" {
 }
 
 locals {
-  infrastructure_base_ref = "v0.1.0"
-
   rgw_in_cluster_endpoint = "http://rgw-service.rook-ceph.svc.cluster.local:80"
 
   rgw_s3_apply_endpoint = coalesce(
@@ -92,7 +90,7 @@ provider "aws" {
 }
 
 module "infrastructure_base" {
-  source = "git::https://github.com/maze-technology/infrastructure-base.git?ref=${local.infrastructure_base_ref}"
+  source = "git::https://github.com/maze-technology/infrastructure-base.git?ref=v0.1.0"
 
   providers = {
     aws.rgw = aws.rgw

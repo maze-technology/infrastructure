@@ -46,8 +46,6 @@ provider "helm" {
 }
 
 locals {
-  infrastructure_base_ref = "v0.1.0"
-
   # Static in-cluster fallback so aws.rgw provider config never depends on
   # deferred Vault/module outputs (unknown provider → BucketAlreadyExists churn).
   rgw_in_cluster_endpoint = "http://rgw-service.rook-ceph.svc.cluster.local:80"
@@ -107,7 +105,7 @@ provider "aws" {
 }
 
 module "infrastructure_base" {
-  source = "git::https://github.com/maze-technology/infrastructure-base.git?ref=${local.infrastructure_base_ref}"
+  source = "git::https://github.com/maze-technology/infrastructure-base.git?ref=v0.1.0"
 
   providers = {
     aws.rgw = aws.rgw
