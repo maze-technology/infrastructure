@@ -147,3 +147,15 @@ variable "backup_ttl" {
   type        = string
   default     = "168h"
 }
+
+variable "backup_object_sync_enabled" {
+  description = "Mirror GitLab/Loki RGW buckets into the backup store via rclone crypt"
+  type        = bool
+  default     = true
+}
+
+variable "backup_object_sync_schedule_cron" {
+  description = "Cron for RGW object mirror (UTC)"
+  type        = string
+  default     = "30 2 * * *"
+}

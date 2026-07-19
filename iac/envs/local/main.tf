@@ -268,4 +268,6 @@ module "infrastructure_base" {
   backup_encryption_password         = var.backup_encryption_password
   backup_schedule_cron               = var.backup_schedule_cron
   backup_ttl                         = var.backup_ttl
+  backup_object_sync_enabled         = var.backup_object_sync_enabled
+  backup_object_sync_schedule_cron   = var.backup_object_sync_schedule_cron
 }

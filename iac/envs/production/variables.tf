@@ -140,48 +140,48 @@ variable "gitlab_postgresql_password" {
 }
 
 # =============================================================================
-# Cluster backup (Velero + Kopia → OVH Object Storage)
+# Cluster backup (Velero + Kopia + RGW rclone crypt → OVH Object Storage)
 # =============================================================================
 
 variable "backup_enabled" {
-  description = "Install Velero and schedule encrypted Kopia backups to OVH Object Storage"
+  description = "Install Velero, schedule Kopia backups, and mirror RGW buckets to OVH Object Storage"
   type        = bool
-  default     = false
+  default     = true
 }
 
 variable "backup_s3_bucket" {
-  description = "OVH Object Storage bucket name for Velero backups (create in OVH console or CLI first)"
+  description = "OVH Object Storage bucket name (created by this env when backup_enabled)"
   type        = string
-  default     = ""
+  default     = "maze-cluster-backup-production"
 }
 
 variable "backup_s3_prefix" {
-  description = "Prefix inside the backup bucket"
+  description = "Prefix inside the backup bucket for Velero"
   type        = string
   default     = "velero"
 }
 
 variable "backup_s3_region" {
-  description = "OVH Object Storage region (e.g. gra, sbg, de, uk, waw, bhs, or us-east-1 placeholder)"
+  description = "OVH Object Storage region code (e.g. gra, sbg, de, uk, waw, bhs)"
   type        = string
   default     = "gra"
 }
 
 variable "backup_s3_endpoint" {
-  description = "OVH S3 endpoint URL (e.g. https://s3.gra.io.cloud.ovh.net)"
+  description = "OVH S3 endpoint URL"
   type        = string
-  default     = ""
+  default     = "https://s3.gra.io.cloud.ovh.net"
 }
 
 variable "backup_s3_access_key" {
-  description = "OVH Object Storage S3 access key"
+  description = "OVH Object Storage S3 access key (required when backup_enabled)"
   type        = string
   sensitive   = true
   default     = ""
 }
 
 variable "backup_s3_secret_key" {
-  description = "OVH Object Storage S3 secret key"
+  description = "OVH Object Storage S3 secret key (required when backup_enabled)"
   type        = string
   sensitive   = true
   default     = ""
@@ -195,7 +195,7 @@ variable "backup_encryption_password" {
 }
 
 variable "backup_schedule_cron" {
-  description = "Cron schedule for cluster backups (UTC)"
+  description = "Cron schedule for Velero cluster backups (UTC)"
   type        = string
   default     = "0 2 * * *"
 }
@@ -204,4 +204,16 @@ variable "backup_ttl" {
   description = "Backup retention TTL (Go duration, e.g. 720h = 30d)"
   type        = string
   default     = "720h"
+}
+
+variable "backup_object_sync_enabled" {
+  description = "Mirror GitLab/Loki RGW buckets to OVH via rclone crypt"
+  type        = bool
+  default     = true
+}
+
+variable "backup_object_sync_schedule_cron" {
+  description = "Cron for RGW→OVH object mirror (UTC)"
+  type        = string
+  default     = "30 2 * * *"
 }
