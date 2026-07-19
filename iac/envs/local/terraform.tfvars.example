@@ -36,3 +36,12 @@ cluster_public_ip = "203.0.113.10" # Your VPS public IP (generates /etc/hosts vi
 #     groups   = ["engineers", "vpn-users"]
 #   }
 # ]
+
+# ── Cluster backup (Velero + Kopia → local RGW) ─────────────────────────────
+# Encrypted (Kopia repository password) + incremental filesystem backups.
+# Generate once and store offline:  openssl rand -base64 32
+# backup_enabled              = true
+# backup_encryption_password  = "REPLACE-WITH-openssl-rand-base64-32"
+# backup_schedule_cron        = "0 2 * * *"   # daily 02:00 UTC
+# backup_ttl                  = "168h"        # retain 7 days
+# backup_s3_bucket            = "cluster-backup-local"

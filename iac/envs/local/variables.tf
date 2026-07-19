@@ -92,3 +92,58 @@ variable "rgw_s3_endpoint" {
   type        = string
   default     = ""
 }
+
+# =============================================================================
+# Cluster backup (Velero + Kopia → local RGW bucket for smoke tests)
+# =============================================================================
+
+variable "backup_enabled" {
+  description = "Install Velero and schedule encrypted Kopia backups to a local RGW bucket"
+  type        = bool
+  default     = true
+}
+
+variable "backup_s3_bucket" {
+  description = "RGW bucket name for Velero backups (created by this env)"
+  type        = string
+  default     = "cluster-backup-local"
+}
+
+variable "backup_s3_prefix" {
+  description = "Prefix inside the backup bucket"
+  type        = string
+  default     = "velero"
+}
+
+variable "backup_s3_access_key" {
+  description = "RGW access key for Velero (Makefile sets from Vault during apply-services)"
+  type        = string
+  sensitive   = true
+  default     = ""
+}
+
+variable "backup_s3_secret_key" {
+  description = "RGW secret key for Velero (Makefile sets from Vault during apply-services)"
+  type        = string
+  sensitive   = true
+  default     = ""
+}
+
+variable "backup_encryption_password" {
+  description = "Kopia repository password (min 16 chars when backup_enabled). Store offline — required to restore volume data."
+  type        = string
+  sensitive   = true
+  default     = ""
+}
+
+variable "backup_schedule_cron" {
+  description = "Cron schedule for cluster backups (UTC)"
+  type        = string
+  default     = "0 2 * * *"
+}
+
+variable "backup_ttl" {
+  description = "Backup retention TTL (Go duration, e.g. 168h = 7d)"
+  type        = string
+  default     = "168h"
+}

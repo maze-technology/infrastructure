@@ -138,3 +138,70 @@ variable "gitlab_postgresql_password" {
   type        = string
   sensitive   = true
 }
+
+# =============================================================================
+# Cluster backup (Velero + Kopia → OVH Object Storage)
+# =============================================================================
+
+variable "backup_enabled" {
+  description = "Install Velero and schedule encrypted Kopia backups to OVH Object Storage"
+  type        = bool
+  default     = false
+}
+
+variable "backup_s3_bucket" {
+  description = "OVH Object Storage bucket name for Velero backups (create in OVH console or CLI first)"
+  type        = string
+  default     = ""
+}
+
+variable "backup_s3_prefix" {
+  description = "Prefix inside the backup bucket"
+  type        = string
+  default     = "velero"
+}
+
+variable "backup_s3_region" {
+  description = "OVH Object Storage region (e.g. gra, sbg, de, uk, waw, bhs, or us-east-1 placeholder)"
+  type        = string
+  default     = "gra"
+}
+
+variable "backup_s3_endpoint" {
+  description = "OVH S3 endpoint URL (e.g. https://s3.gra.io.cloud.ovh.net)"
+  type        = string
+  default     = ""
+}
+
+variable "backup_s3_access_key" {
+  description = "OVH Object Storage S3 access key"
+  type        = string
+  sensitive   = true
+  default     = ""
+}
+
+variable "backup_s3_secret_key" {
+  description = "OVH Object Storage S3 secret key"
+  type        = string
+  sensitive   = true
+  default     = ""
+}
+
+variable "backup_encryption_password" {
+  description = "Kopia repository password (min 16 chars when backup_enabled). Store offline — required to restore volume data."
+  type        = string
+  sensitive   = true
+  default     = ""
+}
+
+variable "backup_schedule_cron" {
+  description = "Cron schedule for cluster backups (UTC)"
+  type        = string
+  default     = "0 2 * * *"
+}
+
+variable "backup_ttl" {
+  description = "Backup retention TTL (Go duration, e.g. 720h = 30d)"
+  type        = string
+  default     = "720h"
+}

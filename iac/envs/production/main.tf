@@ -167,4 +167,18 @@ module "infrastructure_base" {
   s3_force_destroy               = false
   webservice_min_replicas        = 2
   webservice_max_replicas        = 4
+
+  # Backup — Velero + Kopia (encrypted, incremental) → OVH Object Storage
+  backup_enabled                     = var.backup_enabled
+  backup_s3_bucket                   = var.backup_s3_bucket
+  backup_s3_prefix                   = var.backup_s3_prefix
+  backup_s3_region                   = var.backup_s3_region
+  backup_s3_endpoint                 = var.backup_s3_endpoint
+  backup_s3_force_path_style         = true
+  backup_s3_insecure_skip_tls_verify = false
+  backup_s3_access_key               = var.backup_s3_access_key
+  backup_s3_secret_key               = var.backup_s3_secret_key
+  backup_encryption_password         = var.backup_encryption_password
+  backup_schedule_cron               = var.backup_schedule_cron
+  backup_ttl                         = var.backup_ttl
 }

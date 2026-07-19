@@ -72,6 +72,17 @@ This repo owns provider configuration:
 
 `aws.rgw` is passed into the module via `providers = { aws.rgw = aws.rgw }` (`configuration_aliases` in the base module). Prefer an explicit `rgw_s3_endpoint` / Vault address at apply time (Makefile port-forwards when unset).
 
+## Cluster backup
+
+Velero + Kopia (encrypted, incremental filesystem backups). Schedule and retention are set per env (`backup_schedule_cron`, `backup_ttl`).
+
+| Env | Object store | Notes |
+|-----|--------------|-------|
+| `local` | RGW bucket `cluster-backup-local` (same Ceph) | Smoke only — not off-cluster DR. Set `backup_encryption_password` in tfvars. Makefile passes RGW keys into Velero during `apply-services`. |
+| `production` | OVH Object Storage (S3) | Create the bucket first; set endpoint, keys, and encryption password in tfvars. Default `backup_enabled = false` until configured. |
+
+Store the Kopia repository password offline — it is required to restore volume data and cannot be rotated for an existing repository.
+
 ## Related
 
 - [`infrastructure-base`](https://github.com/maze-technology/infrastructure-base) — versioned root module
