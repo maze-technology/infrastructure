@@ -121,6 +121,17 @@ resource "aws_s3_bucket" "cluster_backup" {
   }
 }
 
+resource "aws_s3_bucket_versioning" "cluster_backup" {
+  count = var.backup_enabled ? 1 : 0
+
+  provider = aws.rgw
+  bucket   = aws_s3_bucket.cluster_backup[0].id
+
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+
 module "infrastructure_base" {
   source = "git::https://github.com/maze-technology/infrastructure-base.git?ref=v0.1.0"
 

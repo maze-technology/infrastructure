@@ -188,7 +188,7 @@ variable "backup_s3_secret_key" {
 }
 
 variable "backup_encryption_password" {
-  description = "Kopia repository password (min 16 chars when backup_enabled). Store offline — required to restore volume data."
+  description = "Shared password for Kopia (Velero) and rclone crypt (RGW mirror). Min 16 chars when backup_enabled. Store offline."
   type        = string
   sensitive   = true
   default     = ""

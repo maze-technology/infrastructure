@@ -74,14 +74,14 @@ This repo owns provider configuration:
 
 ## Cluster backup
 
-Velero + Kopia (encrypted, incremental filesystem backups). Schedule and retention are set per env (`backup_schedule_cron`, `backup_ttl`).
+Velero + Kopia (encrypted PVC backups) and rclone crypt mirror of RGW buckets (GitLab, Loki) into the same backup store. One password: `backup_encryption_password`.
 
 | Env | Object store | Notes |
 |-----|--------------|-------|
-| `local` | RGW bucket `cluster-backup-local` (same Ceph) | Smoke only — not off-cluster DR. Set `backup_encryption_password` in tfvars. Makefile passes RGW keys into Velero during `apply-services`. |
-| `production` | OVH Object Storage (S3) | Create the bucket first; set endpoint, keys, and encryption password in tfvars. Default `backup_enabled = false` until configured. |
+| `local` | RGW bucket `cluster-backup-local` (same Ceph) | Smoke only. Makefile passes RGW keys during `apply-services`. |
+| `production` | OVH Object Storage (S3) | Create the bucket first; set endpoint, keys, password. Default `backup_enabled = false`. Enable versioning on the OVH bucket. |
 
-Store the Kopia repository password offline — it is required to restore volume data and cannot be rotated for an existing repository.
+External Postgres (and anything else outside this stack) is **not** covered — operator-owned.
 
 ## Related
 

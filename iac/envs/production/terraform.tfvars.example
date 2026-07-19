@@ -43,8 +43,9 @@ kubeconfig_context = "production"
 # vault_token = "..."
 
 # ── Cluster backup (Velero + Kopia → OVH Object Storage) ─────────────────────
-# Off-cluster encrypted incremental backups. Create the bucket in OVH first.
-# Generate once and store offline:  openssl rand -base64 32
+# Off-cluster encrypted PVC backups + rclone crypt mirror of GitLab/Loki RGW.
+# Create the OVH bucket first and enable versioning. Generate password offline:
+#   openssl rand -base64 32
 # backup_enabled             = true
 # backup_s3_bucket           = "maze-cluster-backup-prod"
 # backup_s3_endpoint         = "https://s3.gra.io.cloud.ovh.net"
