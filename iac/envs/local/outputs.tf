@@ -48,3 +48,8 @@ output "bootstrap_credentials" {
   sensitive   = true
   value       = module.infrastructure_base.bootstrap_credentials
 }
+
+output "backup_schedule" {
+  description = "Velero schedule when backups are enabled (local RGW smoke target)"
+  value       = module.infrastructure_base.backup_schedule
+}

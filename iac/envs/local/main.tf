@@ -104,8 +104,36 @@ provider "aws" {
   ec2_metadata_service_endpoint_mode = "IPv4"
 }
 
+# Local smoke target: dedicated RGW bucket on the same Ceph (not off-cluster DR).
+# Created during apply-services once aws.rgw credentials are exported from Vault.
+resource "aws_s3_bucket" "cluster_backup" {
+  count = var.backup_enabled ? 1 : 0
+
+  provider      = aws.rgw
+  bucket        = var.backup_s3_bucket
+  force_destroy = true
+
+  tags = {
+    Name        = var.backup_s3_bucket
+    Environment = "local"
+    ManagedBy   = "opentofu"
+    Purpose     = "velero-backups"
+  }
+}
+
+resource "aws_s3_bucket_versioning" "cluster_backup" {
+  count = var.backup_enabled ? 1 : 0
+
+  provider = aws.rgw
+  bucket   = aws_s3_bucket.cluster_backup[0].id
+
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+
 module "infrastructure_base" {
-  source = "git::https://github.com/maze-technology/infrastructure-base.git?ref=v0.1.0"
+  source = "git::https://github.com/maze-technology/infrastructure-base.git?ref=v0.1.2"
 
   providers = {
     aws.rgw = aws.rgw
@@ -226,4 +254,20 @@ module "infrastructure_base" {
   kas_max_replicas               = 1
   registry_min_replicas          = 1
   registry_max_replicas          = 1
+
+  # Backup — Velero + Kopia (encrypted, incremental) → local RGW bucket
+  backup_enabled                     = var.backup_enabled
+  backup_s3_bucket                   = var.backup_enabled ? aws_s3_bucket.cluster_backup[0].id : ""
+  backup_s3_prefix                   = var.backup_s3_prefix
+  backup_s3_region                   = "us-east-1"
+  backup_s3_endpoint                 = local.rgw_in_cluster_endpoint
+  backup_s3_force_path_style         = true
+  backup_s3_insecure_skip_tls_verify = true
+  backup_s3_access_key               = var.backup_s3_access_key
+  backup_s3_secret_key               = var.backup_s3_secret_key
+  backup_encryption_password         = var.backup_encryption_password
+  backup_schedule_cron               = var.backup_schedule_cron
+  backup_ttl                         = var.backup_ttl
+  backup_object_sync_enabled         = var.backup_object_sync_enabled
+  backup_object_sync_schedule_cron   = var.backup_object_sync_schedule_cron
 }

@@ -89,8 +89,63 @@ provider "aws" {
   shared_config_files         = []
 }
 
+# OVH Object Storage (S3) — off-cluster backup target for Velero + rclone crypt mirror
+provider "aws" {
+  alias = "backup"
+
+  access_key = var.backup_s3_access_key
+  secret_key = var.backup_s3_secret_key
+
+  endpoints {
+    s3 = var.backup_s3_endpoint
+  }
+
+  region                      = var.backup_s3_region
+  s3_use_path_style           = true
+  skip_credentials_validation = true
+  skip_metadata_api_check     = true
+  skip_region_validation      = true
+  skip_requesting_account_id  = true
+  shared_credentials_files    = []
+  shared_config_files         = []
+}
+
+# Off-cluster backup bucket on OVH (Velero prefix + rgw-mirror/* crypt).
+resource "aws_s3_bucket" "cluster_backup" {
+  count = var.backup_enabled ? 1 : 0
+
+  provider      = aws.backup
+  bucket        = var.backup_s3_bucket
+  force_destroy = false
+
+  tags = {
+    Name        = var.backup_s3_bucket
+    Environment = "production"
+    ManagedBy   = "opentofu"
+    Purpose     = "cluster-backups"
+  }
+
+  lifecycle {
+    precondition {
+      condition     = var.backup_s3_endpoint != "" && var.backup_s3_access_key != "" && var.backup_s3_secret_key != "" && length(var.backup_encryption_password) >= 16
+      error_message = "When backup_enabled, set backup_s3_endpoint, backup_s3_access_key, backup_s3_secret_key, and backup_encryption_password (≥16 chars)."
+    }
+  }
+}
+
+resource "aws_s3_bucket_versioning" "cluster_backup" {
+  count = var.backup_enabled ? 1 : 0
+
+  provider = aws.backup
+  bucket   = aws_s3_bucket.cluster_backup[0].id
+
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+
 module "infrastructure_base" {
-  source = "git::https://github.com/maze-technology/infrastructure-base.git?ref=v0.1.0"
+  source = "git::https://github.com/maze-technology/infrastructure-base.git?ref=v0.1.2"
 
   providers = {
     aws.rgw = aws.rgw
@@ -167,4 +222,20 @@ module "infrastructure_base" {
   s3_force_destroy               = false
   webservice_min_replicas        = 2
   webservice_max_replicas        = 4
+
+  # Backup — Velero + Kopia + RGW rclone crypt → OVH Object Storage
+  backup_enabled                     = var.backup_enabled
+  backup_s3_bucket                   = var.backup_enabled ? aws_s3_bucket.cluster_backup[0].id : ""
+  backup_s3_prefix                   = var.backup_s3_prefix
+  backup_s3_region                   = var.backup_s3_region
+  backup_s3_endpoint                 = var.backup_s3_endpoint
+  backup_s3_force_path_style         = true
+  backup_s3_insecure_skip_tls_verify = false
+  backup_s3_access_key               = var.backup_s3_access_key
+  backup_s3_secret_key               = var.backup_s3_secret_key
+  backup_encryption_password         = var.backup_encryption_password
+  backup_schedule_cron               = var.backup_schedule_cron
+  backup_ttl                         = var.backup_ttl
+  backup_object_sync_enabled         = var.backup_object_sync_enabled
+  backup_object_sync_schedule_cron   = var.backup_object_sync_schedule_cron
 }

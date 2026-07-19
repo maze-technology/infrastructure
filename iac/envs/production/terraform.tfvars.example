@@ -41,3 +41,22 @@ kubeconfig_context = "production"
 
 # ── Vault ────────────────────────────────────────────────────────────────────
 # vault_token = "..."
+
+# ── Cluster backup (Velero + Kopia + RGW mirror → OVH Object Storage) ────────
+# On by default. OpenTofu creates the OVH bucket and enables versioning.
+# Required secrets in terraform.tfvars:
+#   openssl rand -base64 32   # → backup_encryption_password (store offline)
+#
+# External resources (e.g. OVH managed PostgreSQL for GitLab/Keycloak) are NOT
+# backed up by this stack — the person running the infrastructure must handle those.
+backup_enabled             = true
+backup_s3_bucket           = "maze-cluster-backup-production"
+backup_s3_endpoint         = "https://s3.gra.io.cloud.ovh.net"
+backup_s3_region           = "gra"
+# backup_s3_access_key       = "..."
+# backup_s3_secret_key       = "..."
+# backup_encryption_password = "REPLACE-WITH-openssl-rand-base64-32"
+# backup_schedule_cron       = "0 2 * * *"
+# backup_ttl                 = "720h"   # retain 30 days
+# backup_object_sync_enabled = true
+# backup_object_sync_schedule_cron = "30 2 * * *"

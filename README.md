@@ -72,6 +72,17 @@ This repo owns provider configuration:
 
 `aws.rgw` is passed into the module via `providers = { aws.rgw = aws.rgw }` (`configuration_aliases` in the base module). Prefer an explicit `rgw_s3_endpoint` / Vault address at apply time (Makefile port-forwards when unset).
 
+## Cluster backup
+
+Velero + Kopia (encrypted PVC backups) and rclone crypt mirror of RGW buckets (GitLab, Loki) into the same backup store. One password: `backup_encryption_password`.
+
+| Env | Object store | Notes |
+|-----|--------------|-------|
+| `local` | RGW bucket `cluster-backup-local` (same Ceph) | Smoke only. Makefile passes RGW keys during `apply-services`. |
+| `production` | OVH Object Storage (S3) | **On by default.** OpenTofu creates the bucket + versioning via `aws.backup`. Set OVH keys + `backup_encryption_password` in tfvars. |
+
+**External resources** (e.g. managed PostgreSQL for GitLab/Keycloak, or anything else provisioned outside this stack) are **not** covered by Velero/rclone. Backing those up is the responsibility of the person running the infrastructure.
+
 ## Related
 
 - [`infrastructure-base`](https://github.com/maze-technology/infrastructure-base) — versioned root module
